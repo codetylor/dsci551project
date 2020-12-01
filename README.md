@@ -23,4 +23,5 @@ As we know, public security in Los Angeles is always a big problem. So we want t
 - Crime table in MySQL database and weather.json in firebase are integrated with date attributes. The integration case is based on the necessity of our spark program, which is taking weather, area(geolocation) and time interval as inputs for both of our homepage and search page. 
 
 ## System architecture:
-![](https://i.ibb.co/xCKkF9L/Capture.png)
+![](https://i.ibb.co/ZXFZFL6/Capture.png)
+
