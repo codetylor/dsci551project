@@ -14,6 +14,10 @@ This is a course project of DSCI 551 .
 
 As we know, public security in Los Angeles is always a big problem. So we want to create a web application which can provide some alarming information for citizens to avoid the high-risk area or time period. In this project, we will use two datasets (Los Angeles historical crime data and weather data) to analyze the relationship between crime patterns and weather. Then, develop a web app that provides users with specified crime data responding to time, location, weather, etc, based on the user's geolocation.
 
+## Links
+[YouTube Demo](https://youtu.be/V95tban4iug )    
+[Google drive](https://drive.google.com/drive/folders/1zCxStanO6wAj5d2N4U1YiBhPM1xc-m0X?usp=sharing)
+
 ## Summary of What We Did
 
 - Use MySQL as a relational database and Firebase as a NoSQL cloud database for storing both original data and results from the spark computation. 
@@ -24,4 +28,42 @@ As we know, public security in Los Angeles is always a big problem. So we want t
 
 ## System architecture:
 ![](https://i.ibb.co/nrnR8jb/Capture.png)
+1. User visits the homepage of web app. Webpage sends user’s data to backend and get final results back showing in tables and charts.
+2. Flask server submit computation job to spark and get a flag back
+3. Spark retrieves data from Mysql database.
+4. Spark retrieves weather data from Firebase and store the computation results back to Firebase
+5. Web app explores raw data in Mysql
+6. Web app explores raw and derived data in Firebase
+
+## Team members and Contributions:
+<table>
+<tr>
+  <th>Name</th>
+  <th>Background</th>
+  <th>Contribution</th>
+</tr>
+  <tr>
+  <td>Hopong Ng</td>
+  <td>CS</td>
+  <td>computer network, data structure, backend design</td>
+</tr>
+  <tr>
+  <td>Yuqi Xiao</td>
+  <td>Informatics</td>
+  <td>relational database design, back-end data processing and analysis</td>
+</tr>
+  <tr>
+  <td>Yuhao Ban</td>
+  <td>Applied Mathematics and Statistics</td>
+  <td>Data preparation and firebase databas</td>
+</tr>
+  
+## Reference
+https://openweathermap.org/
+https://www.kaggle.com/cityofLA/crime-in-los-angeles
+
+
+
+
+
 
