@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>HW6</title>
+		<script src="https://d3js.org/d3.v5.min.js"></script>
+		<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeqUgXFb607t3-AQm5uoORnbHD7LIzqm8&callback=initMap&libraries=&v=weekly"
+				defer></script>
+		<style>
+			html,body{
+				height:100%;
+				width: 100%;
+				margin:0;
+				padding:0;
+			}
+			#whole{
+				position: relative;
+				background-image: linear-gradient(grey, white);
+				height: 100%;
+			}
+			.button {
+				background-color: #F4F3F4;
+				border: 1px solid dimgray;
+				color: black;
+				padding: 10px 25px;
+				margin-left: 250px;
+				text-align: center;
+				text-decoration: none;
+				font-size: 14px;
+				cursor: pointer;
+				width: 150px;
+				display: block;
+			}
+
+			.switcher .button:not(:last-child) {
+				border-bottom: none;
+			}
+			
+			.switcher .button:focus{
+				outline: 0;
+			}
+
+			.switcher {
+				position: fixed;
+				right:80%;
+				top:55px;
+			}
+						
+			.searchButton{
+				width:80px;
+				margin-right: 0px;
+				background-color: darkgrey;
+				color: black;
+				padding: 6px 5px;
+				border: none;
+				text-align: center;
+				text-decoration: none;
+				font-size: 13px;
+				cursor: pointer;
+			}
+			.searchButton:hover {
+				background-color: #4CAF50;
+				color: white;
+			}
+			
+			* {box-sizing: border-box;}
+
+			.text h3,p{
+				margin-top: 0;
+			}
+			
+			@keyframes fade {
+			  from {opacity: .4} 
+			  to {opacity: 1}
+			}
+
+			.header {
+				text-align: center;
+				font-size: 200%;
+				margin-bottom: 0px;
+			}
+
+			.bar {
+				border: 1px dotted black;
+			}
+
+			.card {
+				box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+				transition: 0.3s;
+				width: 160px;
+				left: 20px;
+				margin-left: 15px;
+				margin-top: 20px;
+				margin-bottom: 20px;
+				border-radius: 5px;
+				vertical-align: top;
+				display: table-cell;
+				cursor:pointer;
+				background-color: #F4F3F4;
+				border: 1px solid #c3c3c3;
+			}
+			
+			.card:hover {
+				box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+			}
+			
+			img {
+				border-radius: 5px;
+				height: 120px;
+				width: 160px;
+			}
+			#main{
+				left:100px;
+				margin: auto;
+				width: 800px;
+				padding-top: 10px;
+				display: block;
+			}
+			#search{
+				display: none;
+				padding-top: 20px;
+				padding-left: 30%;
+				margin: auto;
+			}
+			#view{
+				left:100px;
+				margin: auto;
+				width: 800px;
+				padding-top: 10px;
+				display: none;
+			}
+			#searchBox{
+				padding-top: 30px;
+				padding-bottom: 30px;
+				padding-left: 20px;
+				margin-bottom: 30px;
+				width: 700px;
+				float: left;
+				background-color:#F4F3F4;
+			}
+			#viewBox{
+				padding-top: 30px;
+				padding-bottom: 30px;
+				padding-left: 20px;
+				margin-bottom: 30px;
+				width: 700px;
+				float: left;
+				background-color:#F4F3F4;
+			}
+
+			#result{
+				clear:both;
+				top: 20px;
+				margin-left: 0;
+			}
+			#mytitle{
+				width: 100%;
+				height:50px;
+				background: #343a40;
+			}
+			#weatherbox{
+				width: 200px;
+				height: 150px;
+				border-radius:5px;
+				border: 1px solid grey;
+				background-image: linear-gradient(#123177, #135898);
+				box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+				float: left;
+			}
+			#crimebox{
+				width: 600px;
+				height: 150px;
+				border-radius:5px;
+				border: 1px solid grey;
+				background-color: #343a40;
+				box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+				float: left;
+			}
+			#map {
+				height: 390px;
+				clear:both;
+			}
+			.custom-map-control-button {
+				appearance: button;
+				background-color: #fff;
+				border: 0;
+				border-radius: 2px;
+				box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+				cursor: pointer;
+				margin: 200px;
+				padding: 50px 50px;
+				height: 40px;
+				font: 400 18px Roboto, Arial, sans-serif;
+				overflow: hidden;
+			}
+			.custom-map-control-button:hover {
+				background: #ebebeb;
+			}
+			.containerY {
+				margin: 0;
+				width:  1000px;
+				height: 700px;
+				display: none;
+				overflow: visible;
+			}
+			.containerX {
+				margin-left: 200px;
+				width: 600px;
+				height: 300px;
+				display: none;
+				align-items: flex-start;
+			}
+			polyline {
+				fill: none;
+				stroke: #000000;
+				stroke-width: 2px;
+				stroke-dasharray: 5px;
+			}
+			.loader {
+				border: 16px solid #f3f3f3;
+				border-radius: 50%;
+				border-top: 16px solid #3498db;
+				width: 120px;
+				height: 120px;
+				-webkit-animation: spin 2s linear infinite; /* Safari */
+				animation: spin 2s linear infinite;
+			}
+			.axis path,
+			.axis line {
+				stroke: #000;
+				fill: none;
+			}
+			@keyframes spin {
+				0% { transform: rotate(0deg); }
+				100% { transform: rotate(360deg); }
+			}
+
+			.key {
+				display: inline-block;
+				background-color: linen;
+				margin-left: 1rem;
+				width: 200px;
+			}
+
+			.player {
+				display: flex;
+				justify-content: space-between;
+				color: white;
+				padding: 0.5rem;
+			}
+
+			.tooltip {
+				position: absolute;
+				background: lightgray;
+				border: solid gray 1px;
+				border-radius: 5px;
+				opacity: 0; /* initially hidden */
+				padding: 0.5rem;
+				pointer-events: none;
+			}
+			table
+			{
+				width: 200px;
+				margin-left: 200px;
+			}
+			tr{
+				width: 200px;
+			}
+			td{
+				width: 200px;
+			}
+		</style>
+	</head>
+	<body>
+
+	<div id="mytitle">
+		<div style="float:left;">
+			<img src="https://i.ibb.co/vm2CmtK/handcuffs.png" style="vertical-align:middle;width:50px;height:50px">
+		</div>
+		<div style="float:left;margin-left:10px;">
+			<h2 style="color: white">LA Crime</h2>
+		</div>
+	</div>
+
+	<div id="whole">
+		<div class="switcher">
+			<button class="button" id="button1" type="button"  style="border-top-left-radius:5px;border-top-right-radius:5px;">Home</button>
+			<button class="button" id="button2" type="button"  >Search</button>
+			<button class="button" id="button3" type="button"  style="border-bottom-left-radius:5px;border-bottom-right-radius:5px;">Explore </button>
+		</div>
+
+		<div id="main">
+			<div style="width:inherit";>
+				<div id="weatherbox">
+					<h2 id="weat" style="color:#FFFFFF;padding-left:10px;margin-top: 5px;margin-bottom: 0">Today's Weather: </h2>
+					<h2 id="temp" style="color:#FFFFFF;padding-left:10px;margin-top: 5px;margin-bottom: 0">38 °C </h2>
+					<div id="cloud" style="text-align: center">
+						<img id="icon" src="https://i.ibb.co/znpwSWX/sun.png" style="width:80px;height:80px;">
+					</div>
+				</div>
+				<div id="crimebox">
+					<h2 style="color:#FFFFFF;padding-left:10px;margin-top: 5px;margin-bottom: 0">User Guide</h2>
+					<p style="color:#FFFFFF;padding-left:10px">1click on the button in the center of map to allow us to use your loaction.</p>
+					<p style="color:#FFFFFF;padding-left:10px">then webpage will send data to the server and get your results back from firebase.</p>
+				</div>
+				<br />
+			</div>
+			<br />
+			<div id="map"></div>
+			<br />
+			<div class="loader" id="loader1" style="margin-left:300px;display:none"></div>
+			<h2 id="loadertext1" style="margin-left:300px;display:none">Loading Data</h2>
+			<div class="containerX" id="chartS"></div>
+		</div>
+
+		<div id="search">
+			<div id="searchBox">
+				<form name="news" target="hidden_frame1" action=javascript:void(0);>
+					<label for="interval" style="margin-left: 30px;">Time interval: </label>
+					<select name="interval">
+						<option value="" style="display: none"></option>
+						<option value="before dawn">0:00-6:00</option>
+						<option value="early morning">6:00-7:30</option>
+						<option value="morning rush">7:30-9:00</option>
+						<option value="late morning">9:00-12:00</option>
+						<option value="afternoon">12:00-16:30</option>
+						<option value="evening rush">16:30-19:00</option>
+						<option value="night">19:00-24:00</option>
+					</select>
+					<label for="area" style="margin-left: 30px;">Area: </label>
+					<select name="area">
+						<option value="" style="display: none"></option>
+						<option value="Hollywood">Hollywood</option>
+						<option value="Harbor">Harbor</option>
+						<option value="Devonshire">Devonshire</option>
+						<option value="N Hollywood">N Hollywood</option>
+						<option value="Newton">Newton</option>
+						<option value="Van Nuys">Van Nuys</option>
+						<option value="West Vally">West Vally</option>
+						<option value="Mission">Mission</option>
+						<option value="Southeast">Southeast</option>
+						<option value="Wilshire">Wilshire</option>
+						<option value="Topanga">Topanga</option>
+						<option value="Central">Central</option>
+						<option value="Pacific">Pacific</option>
+						<option value="Hollenbeck">Hollenbeck</option>
+						<option value="Olympic">Olympic</option>
+						<option value="Southwest">Southwest</option>
+						<option value="Foothill">Foothill</option>
+						<option value="Rampart">Rampart</option>
+						<option value="West LA">West LA</option>
+						<option value="77th Street">77th Street</option>
+					</select>
+					<label for="weather" style="margin-left: 30px;">Weather: </label>
+					<select id="weather" name="source" style = "width:120px;">
+						<option value="" style="display: none"></option>
+						<option value="Clear">Clear</option>
+						<option value="Mist">Mist</option>
+						<option value="Clouds">Clouds</option>
+						<option value="Rain">Rain</option>
+						<option value="Haze">Haze</option>
+					</select><br /><br />
+					<button class="searchButton" type="submit" style="margin-left: 30%;" onclick="sendJob(2,0,0)">Search</button>
+					<button class="searchButton" type="button" style="margin-left: 10%;" onclick="clearResult()">Clear</button>
+				</form>
+				<iframe name='hidden_frame1' id="hidden_frame1" style="display:none"></iframe>
+			</div><br />
+			<p id="no" style="clear:both;text-align: center;display:none;width: 650px;">No results</p>
+			<div id="result">
+				<div class="loader" id="loader" style="margin-left:300px;display:none"></div>
+				<h2 id="loadertext" style="margin-left:300px;display:none">Loading Data</h2>
+				<table border="1" id="table" style="display: none">
+					<tr>
+						<th>crime rate</th>
+						<th>area</th>
+					</tr>
+					<tr>
+						<td id="rate"></td>
+						<td id="area"></td>
+					</tr>
+				</table>
+				<h1 id="chartZ" style="display:none;width:100%;height:100%">Crime rate: </h1>
+				<div class="containerY" id="chartY" ></div>
+				<div class="containerX" id="chartX"></div>
+			</div>
+		</div>
+		<div id="view">
+			<div id="viewBox">
+				<form name="news" target="hidden_frame2" action=javascript:void(0);>
+					<label for="column">Column: </label>
+					<select id="column" name="column" style = "width:120px;margin-right: 20px">
+						<option value=""></option>
+					</select>
+					Keyword: <input style="width:350px" type="text" id="keyword" name="keyword" placeholder="Enter keyword">
+					<br /><br />
+					<label for="table" style="margin-left: 30px;">Table: </label>
+					<select id="tabley" name="table" onchange="updateCol()">
+						<option value="" style="display: none"></option>
+						<option value="area">area</option>
+						<option value="crime">crime</option>
+						<option value="crimedesc">crimedesc</option>
+						<option value="weather">weather</option>
+					</select>
+					<label for="order" style="margin-left: 50px">Order by: </label>
+					<select id="order" style = "width:120px;">
+						<option value=""></option>
+					</select>
+					<label for="group" style="margin-left: 30px;">Group by: </label>
+					<select id="group" name="group" style = "width:120px;">
+						<option value=""></option>
+					</select><br /><br />
+					<button class="searchButton" type="submit" style="margin-left: 30%;" onclick="showTable()">Search</button>
+					<button class="searchButton" type="button" style="margin-left: 10%;" onclick="clearTable()">Clear</button>
+				</form>
+				<iframe name='hidden_frame2' id="hidden_frame2" style="display:none"></iframe>
+			</div>
+			<h1 id="nodata" style="text-align: center;clear: both;display: none">No Results</h1>
+			<table id="tablex" border="1" style="margin-left: 0;display: none">
+			</table>
+		</div>
+	</div>
+		<script>
+			window.onload = function (){
+				url = hostURL + "laweather"
+				let re = new XMLHttpRequest();
+				re.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						let results = re.responseText;
+						console.log("response");
+						console.log(results);
+						document.getElementById("temp").innerText = results.split("#")[1]+" ℃";
+						document.getElementById("icon").src = results.split("#")[2];
+					}
+				};
+				re.open("GET", url, true);
+				re.send();
+			}
+			let map, infoWindow;
+			var user_longitude, user_latitude;
+			var hostURL = "http://127.0.0.1:5000/";
+			var b1 = document.getElementById("button1");
+			b1.style.backgroundColor = '#787878';
+			b1.style.color = 'white';
+			var b2 = document.getElementById("button2");
+			b1.addEventListener('click', function(){
+				b1.style.backgroundColor = '#787878';
+				b1.style.color = 'white';
+				b2.style.backgroundColor = 'white';
+				b2.style.color = 'black';
+				b3.style.backgroundColor = 'white';
+				b3.style.color = 'black';
+				document.getElementById("search").style.display = "none";
+				document.getElementById("view").style.display = "none";
+				document.getElementById("main").style.display = "block";
+			});
+			b1.addEventListener('mouseover', function(){
+				b1.style.backgroundColor = '#4CAF50';
+				b1.style.color = 'white';
+			});
+			b1.addEventListener('mouseleave', function(){
+				console.log(document.getElementById("main").style.display);
+				if(document.getElementById("main").style.display == "none"){
+					b1.style.backgroundColor = 'white';
+					b1.style.color = 'black';
+				}
+				else{
+					b1.style.backgroundColor = '#787878';
+					b1.style.color = 'white';
+				}
+			});
+
+			b2.addEventListener('click', function(){
+				b2.style.backgroundColor = '#787878';
+				b2.style.color = 'white';
+				b1.style.backgroundColor = 'white';
+				b1.style.color = 'black';
+				b3.style.backgroundColor = 'white';
+				b3.style.color = 'black';
+				document.getElementById("main").style.display = "none";
+				document.getElementById("search").style.display = "block";
+				document.getElementById("view").style.display = "none";
+			});
+			b2.addEventListener('mouseover', function(){
+				b2.style.backgroundColor = '#4CAF50';
+				b2.style.color = 'white';
+			});
+			b2.addEventListener('mouseleave', function(){
+				if(document.getElementById("search").style.display == "none"){
+					b2.style.backgroundColor = 'white';
+					b2.style.color = 'black';
+				}
+				else{
+					b2.style.backgroundColor = '#787878';
+					b2.style.color = 'white';
+				}
+			});
+
+			var b3 = document.getElementById("button3");
+			b3.addEventListener('click', function(){
+				b3.style.backgroundColor = '#787878';
+				b3.style.color = 'white';
+				b2.style.backgroundColor = 'white';
+				b2.style.color = 'black';
+				b1.style.backgroundColor = 'white';
+				b1.style.color = 'black';
+				document.getElementById("main").style.display = "none";
+				document.getElementById("search").style.display = "none";
+				document.getElementById("view").style.display = "block";
+			});
+			b3.addEventListener('mouseover', function(){
+				b3.style.backgroundColor = '#4CAF50';
+				b3.style.color = 'white';
+			});
+			b3.addEventListener('mouseleave', function(){
+				if(document.getElementById("view").style.display == "none"){
+					b3.style.backgroundColor = 'white';
+					b3.style.color = 'black';
+				}
+				else{
+					b3.style.backgroundColor = '#787878';
+					b3.style.color = 'white';
+				}
+			});
+
+			function showTable(){
+				let tablex = document.getElementById("tablex").innerHTML = '';
+				if((document.forms[1].column.value !='')&&(document.forms[1].keyword.value == '')){
+					alert("missing keyword");
+					return;
+				}
+				let url = '';
+				if(document.forms[1].table.value == "weather"){
+					if(document.forms[1].order.value!=''){
+						if(document.forms[1].keyword.value!='') {
+							if(document.forms[1].order.value == document.forms[1].column.value){
+								url = "https://dsci551-weather.firebaseio.com/weather.json?limitToFirst=50&orderBy=\"" + document.forms[1].order.value + "\"" +
+										"&equalTo=\"" + document.forms[1].keyword.value + "\"";
+							}else{
+								alert("column of order should be same as the column of password");
+								return;
+							}
+						}else{
+							url = "https://dsci551-weather.firebaseio.com/weather.json?limitToFirst=50&orderBy=\"" + document.forms[1].order.value + "\"";
+						}
+					}
+					else{
+						url = "https://dsci551-weather.firebaseio.com/weather.json?limitToFirst=50&orderBy=\"Date\"";
+					}
+				}
+				else{
+					url = hostURL + "mysql?table="+ document.forms[1].table.value +
+							"&column="+ document.forms[1].column.value +
+							"&keyword="+ document.forms[1].keyword.value +
+							"&order="+ document.forms[1].order.value +
+							"&group="+ document.forms[1].group.value
+				}
+				console.log(url);
+				let re = new XMLHttpRequest();
+				re.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						if (document.forms[1].table.value == "weather") {
+							console.log(re.responseText);
+							let data = JSON.parse(re.responseText);
+							console.log("lalala");
+							console.log(data)
+							let title = "<td>Date</td><td>weather</td>"
+							let tablex = document.getElementById("tablex");
+							tablex.innerHTML = "";
+							if(document.forms[1].keyword.value != ''){
+								for (let i in data) {
+									let attribute = "";
+									for (let key in data[i]) {
+										//alert(key + ':' + data[i][key]);
+										attribute = attribute + "<td>" + data[i][key] + "</td>";
+									}
+									tablex.innerHTML = tablex.innerHTML + attribute;
+								}
+							} else{
+								for (let i = 0, l = data.length; i < l; i++) {
+									let attribute = "";
+									for (let key in data[i]) {
+										//alert(key + ':' + data[i][key]);
+										attribute = attribute + "<td>" + data[i][key] + "</td>";
+									}
+									tablex.innerHTML = tablex.innerHTML + attribute;
+								}
+							}
+							tablex.innerHTML = title + tablex.innerHTML;
+							tablex.style.display = "table";
+						}else{
+							if(re.responseText=="nodata"){
+								document.getElementById("nodata").display = "block";
+							}
+							else{
+								let data = JSON.parse(re.responseText);
+								console.log("response");
+								console.log(data);
+								let tablex = document.getElementById("tablex");
+								tablex.innerHTML = "";
+								for(let i=0;i<data.length;i++){
+									let attribute = "";
+									for(let l=0;l<data[i].length;l++){
+										attribute = attribute + "<td>"+data[i][l]+"</td>"
+									}
+									tablex.innerHTML = tablex.innerHTML + attribute;
+								}
+								tablex.style.display = "table";
+							}
+						}
+					}
+				};
+				re.open("GET", url, true);
+				re.send();
+			}
+			function updateCol(){
+				if(document.forms[1].table.value!="weather"){
+					let url = hostURL + "col?table="+ document.forms[1].table.value
+					let re = new XMLHttpRequest();
+					re.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+							let data = JSON.parse(re.responseText);
+							console.log("response");
+							console.log(data);
+							let attr = '';
+							for(let i=0;i<data.length;i++){
+								attr = attr + "<option value=\""+data[i]+"\">"+data[i]+"</option>";
+							}
+							let pre = "<option value=\"\"\"></option>";
+							document.getElementById("column").innerHTML = pre + attr;
+							document.getElementById("order").innerHTML = pre + attr;
+							document.getElementById("group").innerHTML = pre + attr;
+							//<option value="Clear">Clear</option>
+						}
+					};
+					re.open("GET", url, true);
+					re.send();
+				}else{
+					attr = "<option value=\"weather\">weather</option><option value=\"Date\">Date</option>";
+					let pre = "<option value=\"\"\"></option>";
+					document.getElementById("column").innerHTML = pre + attr;
+					document.getElementById("order").innerHTML = pre + attr;
+					document.getElementById("group").innerHTML = pre + attr;
+				}
+
+			}
+			function clearTable(){
+				let tablex = document.getElementById("tablex").innerHTML = '';
+				let pre = "<option value=\"\"\"></option>";
+				document.getElementById("tabley").innerHTML = "<option value=\"\" style=\"display: none\"></option>" +
+						"<option value=\"area\">area</option>" +
+						"<option value=\"crime\">crime</option>" +
+						"<option value=\"crimedesc\">crimedesc</option>" +
+						"<option value=\"weather\">weather</option>";
+				document.getElementById("column").innerHTML = pre;
+				document.getElementById("order").innerHTML = pre;
+				document.getElementById("group").innerHTML = pre;
+				document.getElementById("keyword").value = "";
+			}
+
+			function initMap() {
+				map = new google.maps.Map(document.getElementById("map"), {
+					center: { lat: -34.397, lng: 150.644 },
+					zoom: 10,
+				});
+				infoWindow = new google.maps.InfoWindow();
+				const locationButton = document.createElement("button");
+				locationButton.textContent = "Click to Locate You";
+				locationButton.classList.add("custom-map-control-button");
+				map.controls[google.maps.ControlPosition.TOP_CENTER].push(
+						locationButton
+				);
+				locationButton.addEventListener("click", () => {
+					if (navigator.geolocation) {
+						navigator.geolocation.getCurrentPosition(
+								(position) => {
+									const pos = {
+										lat: position.coords.latitude,
+										lng: position.coords.longitude,
+									};
+									user_longitude = position.coords.longitude;
+									user_latitude = position.coords.latitude;
+									infoWindow.setPosition(pos);
+									infoWindow.setContent("Location found.");
+									infoWindow.open(map);
+									map.setCenter(pos);
+									locationButton.style.display = 'none';
+									sendJob(1,user_longitude,user_latitude);
+									//window.scrollBy(0,200);
+								},
+								() => {
+									handleLocationError(true, infoWindow, map.getCenter());
+								}
+						);
+					} else {
+						// Browser doesn't support Geolocation
+						handleLocationError(false, infoWindow, map.getCenter());
+					}
+				});
+			}
+
+			function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+				infoWindow.setPosition(pos);
+				infoWindow.setContent(
+						browserHasGeolocation
+								? "Error: The Geolocation service failed."
+								: "Error: Your browser doesn't support geolocation."
+				);
+				infoWindow.open(map);
+			}
+
+			function sendJob(flag,long,lat) {
+				if(flag == 1){
+					let date =new Date();
+					let hour = date.getHours();
+					let minute = date.getMinutes()
+					let url = hostURL + "home" +
+							"?longitude=" + long +
+							"&latitude=" + lat +
+							"&hour=" + hour +
+							"&minute=" + minute
+					document.getElementById("loader1").style.display = "block";
+					document.getElementById("loadertext1").style.display = "block";
+					var xmlhttp1 = new XMLHttpRequest();
+					xmlhttp1.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+							results1 = xmlhttp1.responseText;
+							console.log("response")
+							console.log(results1)
+							if(results1 == "complete"){
+								getResults(flag);
+							}
+						}
+					};
+					xmlhttp1.open("GET", url, true);
+					xmlhttp1.send();
+				}else{
+					if (document.forms[0].interval.value == "" || document.forms[0].area.value == "" || document.forms[0].weather.value == "") {
+						alert("Missing input");
+						return 0;
+					}else {
+						url = hostURL + "search" +
+								"?weather=" + document.forms[0].weather.value +
+								"&area=" + document.forms[0].area.value +
+								"&interval=" + document.forms[0].interval.value;
+						document.getElementById("loader").style.display = "block";
+						document.getElementById("loadertext").style.display = "block";
+						var xmlhttp1 = new XMLHttpRequest();
+						xmlhttp1.onreadystatechange = function() {
+							if (this.readyState == 4 && this.status == 200) {
+								results1 = xmlhttp1.responseText;
+								console.log("response")
+								console.log(results1)
+								if(results1 == "complete"){
+									getResults(flag);
+								}
+							}
+						};
+						console.log(document.forms[0].interval.value);
+						console.log(document.forms[0].area.value);
+						console.log(document.forms[0].weather.value);
+						xmlhttp1.open("GET", url, true);
+						xmlhttp1.send();
+					}
+				}
+			}
+			function getResults(flag){
+				if(flag==1){
+					//get crime type data
+					var xmlhttp2 = new XMLHttpRequest();
+					xmlhttp2.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+							crime_type = JSON.parse(xmlhttp2.responseText);
+							console.log(crime_type)
+							drawPieChart(crime_type, "crime_type","S");
+							document.getElementById("chartS").style.display = "flex";
+							document.getElementById("loader1").style.display = "none";
+							document.getElementById("loadertext1").style.display = "none";
+						}
+					};
+					var url = "https://dsci551-temp.firebaseio.com/crime_type.json"
+					console.log(url);
+					xmlhttp2.open("GET", url, true);
+					xmlhttp2.send();
+				}else{
+					//get crime_area data
+					var xmlhttp3 = new XMLHttpRequest();
+					xmlhttp3.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+							crime_area = JSON.parse(xmlhttp3.responseText);
+							console.log(crime_area)
+							drawBar(crime_area,"crime_area","Y");
+							document.getElementById("chartY").style.display = "block";
+						}
+					};
+					var url = "https://dsci551-temp.firebaseio.com/crime_area.json"
+					console.log(url);
+					xmlhttp3.open("GET", url, true);
+					xmlhttp3.send();
+
+					//get crime time data
+					var xmlhttp4 = new XMLHttpRequest();
+					xmlhttp4.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+							var crime_time = JSON.parse(xmlhttp4.responseText);
+							console.log(crime_time)
+							drawPieChart(crime_time,"crime_time","X");
+							document.getElementById("chartX").style.display = "flex";
+							document.getElementById("loader").style.display = "none";
+							document.getElementById("loadertext").style.display = "none";
+						}
+					};
+					var url = "https://dsci551-temp.firebaseio.com/crime_time_inteval.json"
+					console.log(url);
+					xmlhttp4.open("GET", url, true);
+					xmlhttp4.send();
+
+					//get filter area data
+					var xmlhttp5 = new XMLHttpRequest();
+					xmlhttp5.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+							var crime_filter_area = JSON.parse(xmlhttp5.responseText);
+							console.log(crime_filter_area);
+							document.getElementById("area").innerText = crime_filter_area[0]["crime_filter_area"];
+							document.getElementById("rate").innerText = (crime_filter_area[0]["crime_rate"]*100).toFixed(2);
+							document.getElementById("table").style.display = "block";
+						}
+					};
+					var url = "https://dsci551-temp.firebaseio.com/crime_filter_area.json"
+					console.log(url);
+					xmlhttp5.open("GET", url, true);
+					xmlhttp5.send();
+				}
+			}
+
+			function clearResult() {
+				document.forms[0].weather.options[0].selected = true; ;
+				document.forms[0].interval.options[0].selected = true; ;
+				document.forms[0].area.options[0].selected = true; ;
+				document.getElementById("chartX").style.display = "none";
+				document.getElementById("chartY").style.display = "none";
+				document.getElementById("chartZ").style.display = "none";
+				document.getElementById("table").style.display = "none";
+				document.getElementById("chartX").innerHTML = "";
+				document.getElementById("chartY").innerHTML = "";
+				document.getElementById("chartZ").childNodes[0].innerHTML = "";
+			}
+			function getColor(idx) {
+				var palette = [
+					'#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80',
+					'#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa',
+					'#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050',
+					'#59678c', '#c9ab00', '#7eb00a', '#6f5553', '#c14089'
+				]
+				return palette[idx % palette.length];
+			}
+			function drawPieChart(pie_data,data_name,chartID) {
+
+				let players = [];
+				for(var i=0,l=pie_data.length;i<l;i++){
+					players.push({name:pie_data[i][data_name],score:(pie_data[i]["crime_rate"]*100).toFixed(2)});
+				}
+
+				const totalScore = players.reduce((acc, players) => acc + players.score, 0);
+				//console.log('pie-chart.js x: totalScore =', totalScore);
+
+				const size = 300;
+				const radius = size / 2;
+
+				const tooltip = d3.select('#chart'+chartID).append('div').classed('tooltip', true);
+
+				const svg = d3
+						.select('#chart'+chartID)
+						.append('svg')
+						.attr('width', size)
+						.attr('height', size);
+				const g = svg.append('g').attr('transform', `translate(${radius}, ${radius})`);
+
+				const color = d3.scaleOrdinal([
+					'#2ec7c9',
+					'#e5cf0d',
+					'#b6a2de',
+					'#c14089',
+					'#f5994e',
+					'purple'
+				]);
+
+				const fontColor = d3.scaleOrdinal([
+					'white',
+					'white',
+					'black',
+					'white',
+					'white',
+					'white'
+				]);
+
+				const pie = d3.pie().value(player => player.score);
+
+				const arc = d3.arc().innerRadius(0).outerRadius(radius);
+
+				const arcs = g
+						.selectAll('arc')
+						.data(pie(players))
+						.enter()
+						.append('g')
+						.attr('class', 'arc');
+				arcs
+						.append('path')
+						.attr('fill', (_, i) => color(i))
+						.attr('d', arc)
+						.on('mousemove', function (data) {
+							const player = data.data;
+							//console.log('pie-chart.js x: player =', player);
+							// Configure the tooltip.
+							tooltip
+									.html(player.name + '<br>' + player.score)
+									.style('left', d3.event.pageX + 'px')
+									.style('top', d3.event.pageY + 'px');
+							// Show the tooltip.
+							tooltip.style('opacity', 1);
+							// Fade the bar.
+							d3.select(this).style('opacity', 0.5);
+						})
+						// Cannot use an arrow function because we need the value of "this".
+						.on('mouseout', function () {
+							// Hide the tooltip.
+							tooltip.style('opacity', 0);
+							// Restore the bar opacity.
+							d3.select(this).style('opacity', 1);
+							d3.select(this).style('outline', 'none');
+						});
+
+				const playerDivs = d3
+						.select('#chart'+chartID)
+						.append('div')
+						.classed('key', true)
+						.selectAll('div')
+						.data(players)
+						.style("padding-top","0")
+						.enter()
+						.append('div')
+						.classed('player', true)
+						.style('background-color', (_, i) => color(i))
+						.style('color', (_, i) => fontColor(i));
+
+				playerDivs
+						.append('div')
+						.classed('name', true)
+						.text(player => player.name)
+						.style("font-size","10");
+				playerDivs
+						.append('div')
+						.classed('score', true)
+						.text(player => player.score+"%");
+			}
+
+			function drawBar(bar_data,data_name,chartID){
+				let data = [];
+				for(var i=0,l=bar_data.length;i<l;i++){
+					data.push({key:bar_data[i]["crime_area"],value:bar_data[i]["crime_rate"]});
+				}
+				//console.log(data);
+
+				let Xdatas = data.map(function(d) {return d.value}),
+						Ydatas = data.map(function(d) {return d.key});
+				let width = 800, height = 600;
+				let x = d3.scaleLinear().domain([0, d3.max(Xdatas)]).rangeRound([0, width]);
+				let y = d3.scaleBand().domain(Ydatas).rangeRound([height, 0]);
+
+				let padding = {left: 100, top: 50, right: 50, bottom: 100};
+				let svg = d3.select('#chartY').append('svg').attr('width', width + padding.left).attr('height', height + padding.bottom);
+				let g = svg.append('g').attr('transform', 'translate(' + padding.left + ',' + padding.top + ')');
+				// 表头
+				g.append('text').attr('transform', 'translate(' + (width/2 - padding.left) + ',0)')
+						.attr('font-weight', 600).text(' ');
+				// x轴和y轴
+				g.append('g').attr('transform', 'translate(0,' + height + ')')
+						.call(d3.axisBottom(x));
+				g.append('g').call(d3.axisLeft(y).ticks(10));
+
+				chart = g.selectAll('.bar').data(data).enter().append('g');
+				// 矩形
+				chart.append('rect')
+						.attr('x', function(d) {
+							return x(x.domain()[0]) + 5;
+						})
+						.attr('cursor', 'pointer')
+						.attr('y', function(d) {
+							return y(d.key);
+						})
+						.attr('fill', function(d) {
+							// 随机颜色
+							return '#' + Math.floor(Math.random() * 0xffffff).toString(16);
+						})
+						.attr('stroke', '#FFF').attr('stroke-width', '3px')
+						.transition()
+						.delay(function(d, i) {
+							return (i + 1) * 50;
+						}).duration(2000).ease(d3.easeBounceIn)
+						.attr('width', function(d) {
+							return x(d.value);
+						}).attr('height', y.bandwidth());
+				// 矩形文字
+				chart.append('text').attr('fill', '#FFF')
+						.attr('y', function(d) {
+							return y(d.key) + 12;
+						})
+						.attr('x', function(d) {
+							return x(x.domain()[0]);
+						})
+						.transition().delay(function(d, i) {
+					return (i + 1) * 100
+				})
+						.duration(2000).ease(d3.easeBounceIn)
+						.attr('dx', function(d) {
+							return x(d.value) - 300;
+						}).attr('dy', 10)
+						.text(function(d) {return (d.value*100).toFixed(2)+"%"});
+				// 悬浮提示框
+				tooltip = d3.select('body').append('div');
+
+				// hover事件
+				chart.on('mouseover', function() {
+					d3.select(this).attr('opacity', 0.5);
+					// 悬浮在直方图上时，显示提示框
+					tooltip.html('').transition().duration(500).style('left', d3.event.pageX - 20).style('top', d3.event.pageY + 20).style('opacity', 1.0);
+				}).on('mouseout', function() {
+					d3.select(this).transition().delay(100).duration(500).attr('opacity', 1.0);
+				});
+				// 当鼠标移出svg画布时，就将提示框隐藏掉，考虑到鼠标移出时显示的动画还未完成，需要加transition()过滤
+				svg.on('mouseout', function() {
+					tooltip.transition().style('opacity', 0);
+				});
+			}
+		</script>
+	</body>
+</html>
