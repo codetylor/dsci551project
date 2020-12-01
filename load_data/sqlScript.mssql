@@ -1,0 +1,74 @@
+DROP DATABASE IF EXISTS project;
+CREATE DATABASE IF NOT EXISTS project;
+
+use project;
+
+SET GLOBAL local_infile=1;
+SET GLOBAL max_allowed_packet=200*1024*1024;
+
+DROP TABLE IF EXISTS weather;
+DROP TABLE IF EXISTS area;
+DROP TABLE IF EXISTS weapon;
+DROP TABLE IF EXISTS crime;
+DROP TABLE IF EXISTS crimeDesc;
+
+CREATE TABLE weather
+(
+weather_date DATE, 
+weather VARCHAR(255) NOT NULL,
+PRIMARY KEY(weather_date)
+)
+ENGINE=INNODB;
+
+
+CREATE TABLE area
+(
+area_id INT NOT NULL,
+area_name VARCHAR(255) NOT NULL,
+lat_min FLOAT(11) NOT NULL,
+lat_max	FLOAT(11) NOT NULL,
+lon_min	FLOAT(11) NOT NULL,
+lon_max FLOAT(11) NOT NULL,
+PRIMARY KEY(area_id)
+)
+ENGINE=INNODB;
+
+
+
+
+CREATE TABLE weapon
+(
+weapon_id INT NOT NULL,
+description VARCHAR(255) NOT NULL,
+PRIMARY KEY(weapon_id)
+)
+ENGINE=INNODB;
+
+
+
+
+CREATE TABLE crimeDesc(
+desc_id INT NOT NULL,
+description VARCHAR(255) NOT NULL,
+PRIMARY KEY(desc_id))
+ENGINE=INNODB;
+
+
+
+CREATE TABLE crime
+(
+crime_id INT NOT NULL,
+date_occured DATE NOT NULL,
+area_id INT(64) NOT NULL,
+desc_id INT(64) NOT NULL,
+weapon_id INT(64) NOT NULL,
+address VARCHAR(255),
+time_inteval VARCHAR (255),
+lat FLOAT(11) NOT NULL, 
+lon FLOAT(11) NOT NULL,
+PRIMARY KEY(crime_id),
+FOREIGN KEY(area_id) REFERENCES area(area_id),
+FOREIGN KEY(desc_id) REFERENCES crimeDesc(desc_id),
+FOREIGN KEY(weapon_id) REFERENCES weapon(weapon_id)
+)
+ENGINE=INNODB;
