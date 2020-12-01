@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
-		<title>HW6</title>
+		<title>LA Crime Alert</title>
 		<script src="https://d3js.org/d3.v5.min.js"></script>
 		<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeqUgXFb607t3-AQm5uoORnbHD7LIzqm8&callback=initMap&libraries=&v=weekly"
@@ -822,7 +822,7 @@
 							var crime_filter_area = JSON.parse(xmlhttp5.responseText);
 							console.log(crime_filter_area);
 							document.getElementById("area").innerText = crime_filter_area[0]["crime_filter_area"];
-							document.getElementById("rate").innerText = (crime_filter_area[0]["crime_rate"]*100).toFixed(2);
+							document.getElementById("rate").innerText = (crime_filter_area[0]["crime_rate"]*100).toFixed(2) + "%";
 							document.getElementById("table").style.display = "block";
 						}
 					};

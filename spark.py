@@ -77,6 +77,57 @@ def spark_home():
     return output_ctype
 
 
+def spark_home1(gl, ti):
+    geo_location = gl.split(',')
+    lat = float(geo_location[0])
+    lon = float(geo_location[1])
+
+    output_ctype = []
+
+    spark = SparkSession.builder.appName('551project').getOrCreate()
+    df_weather = spark.read.json('data/weather.json')
+    df_area = spark.read.csv('data/area.csv', header=True)
+    df_crime_desc = spark.read.csv('data/crimeDesc.csv', header=True)
+    df_crime = spark.read.csv('data/crime.csv', header=True)
+
+    weather = df_weather.withColumnRenamed('Date', 'weather_date')
+    crimeDesc = df_crime_desc.select('crime_code', 'discription').withColumnRenamed('crime_code',
+                                                                                    'desc_id').withColumnRenamed(
+        'discription', 'description')
+    crime = df_crime.select('id', 'Date_Occurred', 'Area ID', 'Crime Code', 'Weapon Used Code',
+                            'Time_interval').withColumnRenamed(
+        'id', 'crime_id').withColumnRenamed('Date_Occurred', 'date_occured').withColumnRenamed('Area ID',
+                                                                                               'area_id').withColumnRenamed(
+        'Crime Code',
+        'desc_id').withColumnRenamed('Weapon Used Code',
+                                     'weapon_id').withColumnRenamed('Address',
+                                                                    'address').withColumnRenamed('Time_interval',
+                                                                                                 'time_inteval')
+
+    area = df_area.select('area_id', 'area_name', 'lat_min', 'lat_max', 'lon_min', 'lon_max')
+    selected_area = area.filter(
+        (area.lat_min <= lat) & (area.lat_max >= lat) & (area.lon_min <= lon) & (area.lat_max >= lon)).select('area_id',
+                                                                                                              'area_name').limit(5)
+    selected_date = weather
+    filter_crime = crime.filter(crime.time_inteval == ti)
+    crime_date_time = selected_date.join(filter_crime, selected_date.weather_date == filter_crime.date_occured)
+    crime_dt_area = selected_area.join(crime_date_time, selected_area.area_id == crime_date_time.area_id)
+    crimd_type_rank = crime_dt_area.groupby('desc_id').agg(fc.count('*').alias('count')).orderBy(fc.desc('count')).limit(5)
+    crime_type = crimd_type_rank.join(crimeDesc, crimd_type_rank.desc_id == crimeDesc.desc_id).select('description', 'count')
+    crime_type_precent = crime_type.withColumn('total', fc.sum('count').over(Window.partitionBy())).withColumn('criminal_rate', fc.col('count') / fc.col('total'))
+    output_crime_type = crime_type_precent.select('description', 'criminal_rate').orderBy(fc.desc('criminal_rate'))
+    collected_ctype = output_crime_type.toPandas()
+    crime_type_list = list(collected_ctype['description'])
+    ctype_rate_list = list(collected_ctype['criminal_rate'])
+    for c_type, c_type_rate in zip(crime_type_list, ctype_rate_list):
+        c_type_dic = {}
+        c_type_dic['crime_type'] = c_type
+        c_type_dic['crime_rate'] = c_type_rate
+        output_ctype.append(c_type_dic)
+
+    return output_ctype
+
+
 def spark_search(an, ti):
     spark = SparkSession.builder.appName('551project').getOrCreate()
     df_weather = spark.read.json('data/weather.json')
@@ -179,12 +230,15 @@ def write_json(c_type, c_area, c_time_inteval, c_filter_area, fileName):
 
 def main(weather, area, gl, ti, flag):
     export_json(weather)
+    print('Firebase Export Done!')
+    print('weather', weather)
 
     if flag == 1:
-        export_csv(gl, ti)
+        print('Export Mysql...')
+        #export_csv(gl, ti)
         print('Mysql Export Done!')
-        c_type = spark_home()
-        #c_type_rate = json.dumps(c_type)
+        #c_type = spark_home()
+        c_type = spark_home1(gl, ti)
         url1 = 'https://dsci551-temp.firebaseio.com/crime_type.json'
         requests.put(url1, json=c_type)
         print(c_type)
@@ -192,15 +246,12 @@ def main(weather, area, gl, ti, flag):
 
     else:
         c_area, c_time_inteval, c_filter_area = spark_search(area, ti)
-        #area = json.dumps(c_area)
         url2 = 'https://dsci551-temp.firebaseio.com/crime_area.json'
         requests.put(url2, json=c_area)
 
-        #time_inteval = json.dumps(c_time_inteval)
         url3 = 'https://dsci551-temp.firebaseio.com/crime_time_inteval.json'
         requests.put(url3, json=c_time_inteval)
 
-        #filter_area = json.dumps(c_filter_area)
         url4 = 'https://dsci551-temp.firebaseio.com/crime_filter_area.json'
         requests.put(url4, json=c_filter_area)
 
@@ -211,6 +262,6 @@ def main(weather, area, gl, ti, flag):
         return c_area, c_time_inteval, c_filter_area
 
 
-#main('Clear', 'West LA', '34.3527, -118.7158', 'night', 0)
+#main('Clouds', 'West LA', '34.061779, -118.2904775', 'night', 1)
 
 

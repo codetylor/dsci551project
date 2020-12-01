@@ -2,13 +2,13 @@ from flask import Flask, Response, request, make_response
 import requests
 import json
 import datetime
-
+from spark import main
 import mysql.connector
 
 
 db = mysql.connector.connect(
     user='root',
-    passwd='dsci551',
+    passwd='xiaoyuqi123',
     host='127.0.0.1',
     database='project',
     auth_plugin='mysql_native_password'
@@ -78,7 +78,7 @@ def main1():
     print(interval + " " + weather + " " + geolocation)
     if weather:
         print("complete")
-        #func1(weather, geolocation, interval)
+        main(weather, 'West LA', geolocation, interval, 1)
         response = Response('complete')
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET'
@@ -99,7 +99,7 @@ def main2():
     interval = request.args.get("interval")
     if weather:
         print("complete")
-        # func2(weather, areaID, interval)
+        main(weather, areaID, '34.3527, -118.7158', interval, 0)
         response = make_response('complete')
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET'
@@ -172,7 +172,7 @@ def main4():
         mycursor.execute(query2)
         myresult = mycursor.fetchall()  # fetchall() 获取所有记录
         format = '%Y-%m-%d'  # 根据此格式来解析datetime.datetime()对象为时间字符串
-        if myresult:
+        if len(myresult)>0:
             for x in range(len(myresult)):
                 myresult[x] = list(myresult[x])
                 for y in range(len(myresult[x])):
