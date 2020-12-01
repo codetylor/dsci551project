@@ -8,8 +8,6 @@ This is a course project of DSCI 551 .
 
 **Contact Us:** [ngbangusc@gmail.com](mailto:ngbangusc@gmail.com)
 
-**Reference:** listed in each section if needed.
-
 ## Project Description: 
 
 As we know, public security in Los Angeles is always a big problem. So we want to create a web application which can provide some alarming information for citizens to avoid the high-risk area or time period. In this project, we will use two datasets (Los Angeles historical crime data and weather data) to analyze the relationship between crime patterns and weather. Then, develop a web app that provides users with specified crime data responding to time, location, weather, etc, based on the user's geolocation.
@@ -36,30 +34,14 @@ As we know, public security in Los Angeles is always a big problem. So we want t
 6. Web app explores raw and derived data in Firebase
 
 ## Team members and Contributions:
-<table>
-<tr>
-  <th>Name</th>
-  <th>Background</th>
-  <th>Contribution</th>
-</tr>
-  <tr>
-  <td>Hopong Ng</td>
-  <td>CS</td>
-  <td>computer network, data structure, backend design</td>
-</tr>
-  <tr>
-  <td>Yuqi Xiao</td>
-  <td>Informatics</td>
-  <td>relational database design, back-end data processing and analysis</td>
-</tr>
-  <tr>
-  <td>Yuhao Ban</td>
-  <td>Applied Mathematics and Statistics</td>
-  <td>Data preparation and firebase databas</td>
-</tr>
-  
+Name  | Background  | Contribution
+ ---- | ----- | ------  
+ Hopong Ng  | CS | computer network, data structure, backend design
+ Yuhao Ban  | Informatics | relational database design, back-end data processing and analysis  
+ Yuqi Xiao  | Applied Mathematics and Statistics | Data preparation and firebase databas
+
 ## Reference
-https://openweathermap.org/
+https://openweathermap.org/  
 https://www.kaggle.com/cityofLA/crime-in-los-angeles
 
 
