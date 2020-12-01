@@ -6,7 +6,7 @@ This is a course project of DSCI 551 .
 
 **Authors:** `Yuhao Ban`, `Yuqi Xiao`, `Hopong Ng` (names not listed in order)
 
-**Contact Us:** [Hopong Ng](mailto:ngbangusc@gmail.com), [Yuhao Ban](mailto:yban@usc.edu), [Yuqi Xiao](mailto:yban@usc.edu)
+**Contact Us:** [Hopong Ng](mailto:ngbangusc@gmail.com), [Yuhao Ban](mailto:yban@usc.edu), [Yuqi Xiao](mailto:yuqixiao@usc.edu)
 
 ## Project Description: 
 
